@@ -25,6 +25,8 @@ const io = require("socket.io")(http);
 
 // app.get("/", (req, res) => res.send("Hello"));
 
+const gameboard = {};
+
 app.get("/", (req, res) => {
   // res.send("<h1>Hello world</h1>");
   res.sendFile(__dirname + "/index.html");
@@ -37,16 +39,21 @@ io.on("connection", function(socket) {
   //   io.emit("chat message", msg);
   //   console.log("message: " + msg);
   // });
-  socket.on("dice action", msg => {
-    console.log("Dice:", msg);
+  socket.on("dice action", (player, dice) => {
+    // console.log("Dice:", player, dice);
+    gameboard.player = dice;
+    console.log("recorded", player, gameboard.player);
+  });
+  socket.on("game action", action => {
+    console.log("game action: ", action);
   });
   socket.on("disconnect", function() {
     console.log("user disconnected");
   });
 });
 
-http.listen(3000, function() {
-  console.log("listening on *:3000");
+http.listen(5000, function() {
+  console.log("listening on *:5000");
 });
 
 // app.use("/api/score", score);
