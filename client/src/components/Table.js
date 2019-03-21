@@ -7,11 +7,15 @@ import io from "socket.io-client";
 export default class Table extends Component {
   constructor() {
     super();
-    if (process.env.NODE_ENV === "production") {
-      this.socket = io("https://letsplaydice.herokuapp.com:80");
-    } else {
-      this.socket = io("http://localhost:5000");
-    }
+
+    // Set this port to http://localhost:5000 for development
+    this.socket = io("https://letsplaydice.herokuapp.com:80");
+
+    // if (process.env.NODE_ENV === "production") {
+    //   this.socket = io("https://letsplaydice.herokuapp.com:80");
+    // } else {
+    //   this.socket = io("http://localhost:5000");
+    // }
 
     this.state = {
       player: null,
