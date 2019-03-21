@@ -57,6 +57,8 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-http.listen(5000, function() {
+const port = process.env.PORT || 5000;
+
+http.listen(port, function() {
   console.log("listening on *:5000");
 });
