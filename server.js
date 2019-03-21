@@ -4,6 +4,7 @@ const express = require("express");
 // const users = require("./routes/api/users");
 // const bodyParser = require("body-parser");
 const app = express();
+const path = require("path");
 
 // Add websocket
 // var expressWs = require("express-ws")(app);
@@ -23,8 +24,6 @@ const io = require("socket.io")(http);
 //   .then(() => console.log("MongoDB Connected"))
 //   .catch(err => console.log(err));
 
-// app.get("/", (req, res) => res.send("Hello"));
-
 const gameboard = {};
 
 app.get("/", (req, res) => {
@@ -35,35 +34,29 @@ app.get("/", (req, res) => {
 // Set up socket.io action
 io.on("connection", function(socket) {
   console.log("a user connected");
-  // socket.on("chat message", function(msg) {
-  //   io.emit("chat message", msg);
-  //   console.log("message: " + msg);
-  // });
   socket.on("dice action", (player, dice) => {
     // console.log("Dice:", player, dice);
-    gameboard.player = dice;
-    console.log("recorded", player, gameboard.player);
+    gameboard[player] = dice;
+    console.log("recorded", player, gameboard[player]);
   });
+
+  // on receiving game actiono, emit to everyone including the sender
   socket.on("game action", action => {
     console.log("game action: ", action);
+    io.emit("reveal score", gameboard);
   });
   socket.on("disconnect", function() {
     console.log("user disconnected");
   });
 });
 
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("client/build"));
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+  });
+}
+
 http.listen(5000, function() {
   console.log("listening on *:5000");
 });
-
-// app.use("/api/score", score);
-// app.use("/api/users", users);
-
-// Test websocket
-// app.ws("/echo", (ws, req) => {
-//   ws.on("message", msg => ws.send(msg));
-//   console.log("socket", req.testing);
-// });
-
-// const port = process.env.PORT || 5000;
-// app.listen(port, () => console.log(`Server running on port ${port}`));

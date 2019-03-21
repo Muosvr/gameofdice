@@ -5,40 +5,33 @@ import io from "socket.io-client";
 // import { subToAction } from "./subToAction";
 
 export default class Table extends Component {
-  constructor(props) {
-    super(props);
-    const socket = io("http://localhost:5000");
-    // io.on("connection", socket => {
-    //   socket.on("game action", action => {
-    //     this.setState({ gameAction: action });
-    //   });
-    // });
+  constructor() {
+    super();
+    this.socket = io("http://localhost:5000");
     this.state = {
       player: null,
-      socket: socket,
       numberOfDice: 5,
       diceSet: [1, 2, 3, 4, 5],
-      gameAction: "Not revealed"
+      scoreBoard: null
     };
-
-    // subToAction(action => this.setState({ gameAction: action }));
-    // socket.on("game action", (action) => {
-    //   this.setState({ gameAction: action });
-    // });
   }
 
-  componentWillMount() {
-    this.state.socket.on("game action", action => {
-      this.setState({ gameAction: action }, () =>
-        console.log("socket state changed")
-      );
+  componentDidMount() {
+    this.socket.on("reveal score", score => {
+      const scoreBoard = Object.keys(score).map(key => {
+        return (
+          <li key={Math.random()} style={{ listStyleType: "none" }}>
+            {key + ": " + score[key].join(" ")}
+          </li>
+        );
+      });
+
+      this.setState({ scoreBoard }, () => {
+        console.log(score);
+      });
       console.log("socket.on called");
     });
   }
-  // connect = () => {
-  //   const socket = io("http://localhost:3000");
-  //   this.setState({ socket });
-  // };
 
   rollDice = () => {
     const newDiceSet = this.state.diceSet.map(item => {
@@ -48,8 +41,8 @@ export default class Table extends Component {
       diceSet: newDiceSet
     });
     console.log(newDiceSet);
-    if (this.state.socket) {
-      this.state.socket.emit("dice action", this.state.player, newDiceSet);
+    if (this.socket) {
+      this.socket.emit("dice action", this.state.player, newDiceSet);
     }
   };
 
@@ -72,10 +65,15 @@ export default class Table extends Component {
   };
 
   revealDice = () => {
-    this.state.socket.emit("game action", "Revealed");
+    this.socket.emit("game action", "Revealed");
   };
 
   render() {
+    // const socket = io("http://localhost:5000");
+    // socket.on("game action", action => {
+    //   console.log(action);
+    // });
+    // console.log("test");
     return (
       <div style={{ textAlign: "center" }}>
         {/* <ul></ul> */}
@@ -87,7 +85,7 @@ export default class Table extends Component {
         <Button primary onClick={this.rollDice}>
           Roll Dice
         </Button>
-        <p>{this.state.gameAction}</p>
+        <ul>{this.state.scoreBoard}</ul>
         <Button onClick={this.revealDice}> Call Bullshit</Button>
         <Grid
           container
