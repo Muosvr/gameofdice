@@ -26,10 +26,10 @@ const io = require("socket.io")(http);
 
 const gameboard = {};
 
-app.get("/", (req, res) => {
-  // res.send("<h1>Hello world</h1>");
-  res.sendFile(__dirname + "/index.html");
-});
+// app.get("/", (req, res) => {
+// res.send("<h1>Hello world</h1>");
+//   res.sendFile(__dirname + "/index.html");
+// });
 
 // Set up socket.io action
 io.on("connection", function(socket) {
