@@ -24,7 +24,7 @@ const io = require("socket.io")(http);
 //   .then(() => console.log("MongoDB Connected"))
 //   .catch(err => console.log(err));
 
-const gameboard = {};
+var gameboard = {};
 
 // app.get("/", (req, res) => {
 // res.send("<h1>Hello world</h1>");
@@ -43,7 +43,10 @@ io.on("connection", function(socket) {
   // on receiving game actiono, emit to everyone including the sender
   socket.on("game action", action => {
     console.log("game action: ", action);
-    io.emit("reveal score", gameboard);
+    if (action === "reveal") {
+      io.emit("reveal score", gameboard);
+      gameboard = {};
+    }
   });
   socket.on("disconnect", function() {
     console.log("user disconnected");

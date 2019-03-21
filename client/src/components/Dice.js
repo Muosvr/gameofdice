@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Image } from "semantic-ui-react";
 
 export default class Dice extends Component {
   constructor() {
@@ -10,7 +11,7 @@ export default class Dice extends Component {
   render() {
     return (
       <div style={{ display: "inlineBlock" }}>
-        <img src={"./images/" + this.props.value + ".png"} alt="Dice" />
+        <Image src={"./images/" + this.props.value + ".png"} alt="Dice" />
       </div>
     );
   }
