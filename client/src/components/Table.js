@@ -53,13 +53,7 @@ export default class Table extends Component {
         return (
           <div>
             <h2 style={{ marginTop: "20px" }}>{player}</h2>
-            <Grid
-              container
-              columns={3}
-              doubling
-              stackable
-              style={{ marginTop: "0px" }}
-            >
+            <Grid container style={{ marginTop: "0px" }}>
               <Grid.Row columns={5} key={j}>
                 {onePersonsDice}
               </Grid.Row>
@@ -107,13 +101,7 @@ export default class Table extends Component {
         );
       });
       const table = (
-        <Grid
-          container
-          columns={3}
-          doubling
-          stackable
-          style={{ marginTop: "20px" }}
-        >
+        <Grid container columns={5} doubling style={{ marginTop: "20px" }}>
           {dice}
         </Grid>
       );
