@@ -9,8 +9,8 @@ export default class Table extends Component {
     super();
 
     // Set this port to http://localhost:5000 for development
-    this.socket = io("http://localhost:5000");
-    // this.socket = io("http://letsplaydice.herokuapp.com:80");
+    // this.socket = io("http://localhost:5000");
+    this.socket = io("http://letsplaydice.herokuapp.com:80");
 
     // if (process.env.NODE_ENV === "production") {
     //   this.socket = io("https://letsplaydice.herokuapp.com:80");
