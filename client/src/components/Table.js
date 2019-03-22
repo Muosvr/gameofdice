@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import Dice from "./Dice";
-import { Grid, Button, Input } from "semantic-ui-react";
+import PlayerSignIn from "./PlayerSignIn";
+import { Grid, Button } from "semantic-ui-react";
 import io from "socket.io-client";
-// import { subToAction } from "./subToAction";
 
 export default class Table extends Component {
   constructor() {
@@ -20,27 +20,48 @@ export default class Table extends Component {
 
     this.state = {
       player: null,
+      players: ["none"],
       numberOfDice: 5,
       diceSet: [3, 1, 2, 4, 6],
       everyonesDice: null,
-      table: null
+      table: null,
+      playerRolled: null
     };
+
+    this.socket.on("new player", players => {
+      this.setState({
+        players: players
+      });
+    });
   }
 
   componentDidMount() {
+    this.socket.on("player left", player => {
+      this.setState({
+        players: this.state.players.filter(playerName => {
+          if (playerName === player) {
+            return false;
+          } else {
+            return true;
+          }
+        })
+      });
+    });
+
+    this.socket.on("player rolled", player => {
+      this.setState(
+        {
+          playerRolled: player + " just rolled"
+        },
+        () => {
+          setTimeout(() => {
+            this.setState({ playerRolled: null });
+          }, 500);
+        }
+      );
+    });
+
     this.socket.on("reveal score", gameBoard => {
-      // const everyonesDice = Object.keys(gameBoard).map(key => {
-      //   return (
-      //     <li key={Math.random()} style={{ listStyleType: "none" }}>
-      //       {key + ": " + gameBoard[key].join(" ")}
-      //     </li>
-      //   );
-      // });
-
-      // this.setState({ everyonesDice }, () => {
-      //   console.log(gameBoard);
-      // });
-
       const everyonesDice = Object.keys(gameBoard).map((player, j) => {
         const onePersonsDice = gameBoard[player].map((dice, i) => {
           return (
@@ -51,7 +72,7 @@ export default class Table extends Component {
         });
 
         return (
-          <div>
+          <div key={j}>
             <h2 style={{ marginTop: "20px" }}>{player}</h2>
             <Grid container style={{ marginTop: "0px" }}>
               <Grid.Row columns={5} key={j}>
@@ -109,53 +130,34 @@ export default class Table extends Component {
     }
   };
 
-  setPlayer = e => {
-    this.setState({
-      player: e.target.value
-    });
-    console.log(e.target.value);
+  setPlayer = player => {
+    this.setState({ player });
+    console.log(player);
+    this.socket.emit("new player", player);
   };
 
   revealDice = () => {
     this.socket.emit("game action", "reveal");
   };
-  // clearHistory = () => {
-  //   this.socket.emit("game action", "clear history");
-  // };
 
   render() {
-    // const socket = io("http://localhost:5000");
-    // socket.on("game action", action => {
-    //   console.log(action);
-    // });
-    // console.log("test");
     return (
       <div style={{ textAlign: "center" }}>
-        {/* <ul></ul> */}
-        {/* <Button primary onClick={this.connect}>
-          Connect
-        </Button> */}
-        <Input placeholder="Please enter your name" onChange={this.setPlayer} />
+        {/* <Input placeholder="Please enter your name" onChange={this.setPlayer} /> */}
+        {!this.state.player && (
+          <PlayerSignIn setPlayer={this.setPlayer} styel={{ width: "50px" }} />
+        )}
+        {this.state.player && <h2>{this.state.player}</h2>}
+        <p>Players online: {this.state.players.join(", ")}</p>
         <div style={{ marginTop: "10px" }} />
         <Button primary onClick={this.rollDice}>
           Roll Dice
         </Button>
-
+        <p>{this.state.playerRolled}</p>
         <ul>{this.state.everyonesDice}</ul>
         <Button onClick={this.revealDice}> Call Bullshit</Button>
-        {/* <Button onClick={this.clearHistory}>Clear history</Button> */}
-        {/* <Grid
-          container
-          columns={3}
-          doubling
-          stackable
-          style={{ marginTop: "20px" }}
-        >
-          {this.state.table}
-        </Grid> */}
-        {/* <Grid container doubling stackable style={{ marginTop: "20px" }}> */}
+
         {this.state.table}
-        {/* </Grid> */}
       </div>
     );
   }

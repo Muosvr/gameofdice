@@ -25,6 +25,7 @@ const io = require("socket.io")(http);
 //   .catch(err => console.log(err));
 
 var gameboard = {};
+var players = [];
 
 // app.get("/", (req, res) => {
 // res.send("<h1>Hello world</h1>");
@@ -34,9 +35,12 @@ var gameboard = {};
 // Set up socket.io action
 io.on("connection", function(socket) {
   console.log("a user connected");
+  var playerName;
   socket.on("dice action", (player, dice) => {
     // console.log("Dice:", player, dice);
+    playerName = player;
     gameboard[player] = dice;
+    io.emit("player rolled", player);
     console.log("recorded", player, gameboard[player]);
   });
 
@@ -48,8 +52,17 @@ io.on("connection", function(socket) {
       gameboard = {};
     }
   });
+
+  // Detect player login
+  socket.on("new player", player => {
+    console.log("new player", player);
+    players.push(player);
+    io.emit("new player", players);
+  });
+
   socket.on("disconnect", function() {
-    console.log("user disconnected");
+    io.emit("player left", playerName);
+    console.log(playerName, "disconnected");
   });
 });
 
