@@ -4,30 +4,7 @@ import { Container } from "semantic-ui-react";
 // import io from "socket.io-client";
 
 class App extends Component {
-  // constructor(props) {
-  //   super(props);
-  //   const socket = io("http://localhost:3000");
-  //   this.setState({ socket });
-  // }
-  // componentWillMount() {
-  //   const socket = io("http://localhost:3000");
-  // }
-  // connect = () => {
-  //   const socket = io("http://localhost:3000");
-  //   this.setState({
-  //     socket: socket
-  //   });
-  // };
-  // diceRolled = () => {
-  //   if (this.state.socket) {
-  //     this.state.socket.emit("dice action", "Rolled");
-  //   }
-  // };
-  // setGameState = action => {
-  //   this.setState({
-  //     reveal: action.reveal
-  //   });
-  // };
+
   render() {
     // this.connect();
     return (

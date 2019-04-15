@@ -22,11 +22,17 @@ export default class Table extends Component {
       player: null,
       players: ["none"],
       numberOfDice: 5,
-      diceSet: [3, 1, 2, 4, 6],
+      diceSet: [1, 2, 3, 4, 5],
       everyonesDice: null,
       table: null,
-      playerRolled: null
+      playerRolled: " ",
+      id: null
     };
+
+    this.socket.on("id assignment", id => {
+      console.log("id assigned: ", id)
+      this.setState({ id })
+    })
 
     this.socket.on("new player", players => {
       this.setState({
@@ -35,17 +41,10 @@ export default class Table extends Component {
     });
   }
 
+
   componentDidMount() {
-    this.socket.on("player left", player => {
-      this.setState({
-        players: this.state.players.filter(playerName => {
-          if (playerName === player) {
-            return false;
-          } else {
-            return true;
-          }
-        })
-      });
+    this.socket.on("player left", players => {
+      this.setState({ players });
     });
 
     this.socket.on("player rolled", player => {
@@ -55,15 +54,17 @@ export default class Table extends Component {
         },
         () => {
           setTimeout(() => {
-            this.setState({ playerRolled: null });
+            this.setState({ playerRolled: " " });
           }, 500);
         }
       );
     });
 
+    // Show everyone's dice when someone calls bullshit
     this.socket.on("reveal score", gameBoard => {
-      const everyonesDice = Object.keys(gameBoard).map((player, j) => {
-        const onePersonsDice = gameBoard[player].map((dice, i) => {
+      const everyonesDice = Object.keys(gameBoard).map((playerId, j) => {
+        console.log(gameBoard);
+        const onePersonsDice = gameBoard[playerId].dice.map((dice, i) => {
           return (
             <Grid.Column key={i}>
               <Dice value={dice} />
@@ -73,7 +74,7 @@ export default class Table extends Component {
 
         return (
           <div key={j}>
-            <h2 style={{ marginTop: "20px" }}>{player}</h2>
+            <h2 style={{ marginTop: "20px" }}>{gameBoard[playerId].name}</h2>
             <Grid container style={{ marginTop: "0px" }}>
               <Grid.Row columns={5} key={j}>
                 {onePersonsDice}
@@ -107,7 +108,7 @@ export default class Table extends Component {
       );
       console.log(newDiceSet);
       if (this.socket) {
-        this.socket.emit("dice action", this.state.player, newDiceSet);
+        this.socket.emit("dice action", this.state.id, newDiceSet);
       }
     }
   };
@@ -133,6 +134,8 @@ export default class Table extends Component {
   setPlayer = player => {
     this.setState({ player });
     console.log(player);
+
+    // Declare to server a new player has joined and send over initial dice set
     this.socket.emit("new player", player);
   };
 
@@ -140,22 +143,26 @@ export default class Table extends Component {
     this.socket.emit("game action", "reveal");
   };
 
+  showPlayerNames = () => {
+    const players = this.state.players.map(playerObj => playerObj.name).join(", ");
+    return players
+  }
+
   render() {
     return (
       <div style={{ textAlign: "center" }}>
-        {/* <Input placeholder="Please enter your name" onChange={this.setPlayer} /> */}
         {!this.state.player && (
-          <PlayerSignIn setPlayer={this.setPlayer} styel={{ width: "50px" }} />
+          <PlayerSignIn players={this.state.players} setPlayer={this.setPlayer} styel={{ width: "50px" }} />
         )}
         {this.state.player && <h2>{this.state.player}</h2>}
-        <p>Players online: {this.state.players.join(", ")}</p>
+        <p>Players online: {this.showPlayerNames()}</p>
         <div style={{ marginTop: "10px" }} />
-        <Button primary onClick={this.rollDice}>
+        <Button primary disabled={!this.state.player} onClick={this.rollDice}>
           Roll Dice
         </Button>
-        <p>{this.state.playerRolled}</p>
+        <p >{this.state.playerRolled}</p>
         <ul>{this.state.everyonesDice}</ul>
-        <Button onClick={this.revealDice}> Call Bullshit</Button>
+        <Button disabled={!this.state.player} onClick={this.revealDice}> Call Bullshit</Button>
 
         {this.state.table}
       </div>

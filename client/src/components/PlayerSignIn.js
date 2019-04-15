@@ -23,12 +23,13 @@ export default class PlayerSignIn extends Component {
     return (
       <div>
         <Input
+          focus
           name="name"
           value={this.state.name}
           placeholder="Please enter your name"
         >
           <input onChange={this.handleChange} />
-          <Button onClick={this.handleSubmit} type="submit">
+          <Button primary onClick={this.handleSubmit} type="submit">
             Submit
           </Button>
         </Input>
