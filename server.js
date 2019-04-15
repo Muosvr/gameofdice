@@ -1,8 +1,4 @@
 const express = require("express");
-// const mongoose = require("mongoose");
-// const score = require("./routes/api/score");
-// const users = require("./routes/api/users");
-// const bodyParser = require("body-parser");
 const app = express();
 const path = require("path");
 
@@ -11,40 +7,49 @@ const path = require("path");
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 
-// Body parser middleware
-// app.use(bodyParser.urlencoded({ extended: false }));
-// app.use(bodyParser.json());
-
-// DB Config
-// const db = require("./config/dev_keys").mongoURI;
-
-// Connect to MongoDB
-// mongoose
-//   .connect(db)
-//   .then(() => console.log("MongoDB Connected"))
-//   .catch(err => console.log(err));
 
 var gameboard = {};
 var players = [];
 
-// app.get("/", (req, res) => {
-// res.send("<h1>Hello world</h1>");
-//   res.sendFile(__dirname + "/index.html");
-// });
 
 // Set up socket.io action
-io.on("connection", function(socket) {
-  console.log("a user connected");
-  var playerName;
-  socket.on("dice action", (player, dice) => {
-    // console.log("Dice:", player, dice);
-    playerName = player;
-    gameboard[player] = dice;
-    io.emit("player rolled", player);
-    console.log("recorded", player, gameboard[player]);
+io.on("connection", function (socket) {
+
+  // Notify send over socket identifying info and notify other players
+  console.log("user id: " + socket.id + " connected");
+  io.to(socket.id).emit("id assignment", socket.id);
+  io.emit("new player", players);
+
+  // Detect player login
+  socket.on("new player", playerName => {
+    const player = {
+      name: playerName,
+      id: socket.id
+    }
+    console.log("new player", player);
+    players.push(player);
+    io.emit("new player", players);
   });
 
-  // on receiving game actiono, emit to everyone including the sender
+  // Detect dice roll
+  socket.on("dice action", (playerId, dice) => {
+    const playerName = players[players.findIndex(obj => obj.id == socket.id)].name;
+
+    // initialize player to grameboard
+    if (!gameboard[playerId]) {
+      console.log("create new player in gameboard");
+      gameboard[playerId] = {
+        name: playerName,
+        id: playerId,
+      }
+    }
+    gameboard[playerId] = { ...gameboard[playerId], dice }
+    io.emit("player rolled", playerName);
+
+    console.log("recorded", playerName, playerId, gameboard[playerId].dice);
+  });
+
+  // On receiving game action, emit to everyone including the sender
   socket.on("game action", action => {
     console.log("game action: ", action);
     if (action === "reveal") {
@@ -53,16 +58,20 @@ io.on("connection", function(socket) {
     }
   });
 
-  // Detect player login
-  socket.on("new player", player => {
-    console.log("new player", player);
-    players.push(player);
-    io.emit("new player", players);
-  });
 
-  socket.on("disconnect", function() {
-    io.emit("player left", playerName);
-    console.log(playerName, "disconnected");
+
+  socket.on("disconnect", function () {
+    const playerIndex = players.findIndex(player => player.id === socket.id);
+    delete gameboard[socket.id];
+
+    if (playerIndex != -1) {
+      console.log("playerIndex", playerIndex);
+      const playerName = players[playerIndex].name;
+      players.splice(playerIndex, 1);
+      io.emit("player left", players);
+      console.log(playerName, socket.id, "disconnected");
+    }
+
   });
 });
 
@@ -75,6 +84,6 @@ if (process.env.NODE_ENV === "production") {
 
 const port = process.env.PORT || 5000;
 
-http.listen(port, function() {
+http.listen(port, function () {
   console.log(`listening on port: ${port}`);
 });
