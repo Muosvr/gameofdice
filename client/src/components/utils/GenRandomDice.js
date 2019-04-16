@@ -1,4 +1,4 @@
-const GenerateRandomDice = numberOfDice => {
+const GenRandomDice = numberOfDice => {
   const maxFaceValue = 6;
   var randomDice = [];
   for (var i = 0; i < numberOfDice; i++) {
@@ -10,4 +10,4 @@ const GenerateRandomDice = numberOfDice => {
   return randomDice;
 }
 
-export { GenerateRandomDice };
+export default GenRandomDice;

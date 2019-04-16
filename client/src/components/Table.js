@@ -3,14 +3,13 @@ import Dice from "./Dice";
 import PlayerSignIn from "./PlayerSignIn";
 import { Grid, Button } from "semantic-ui-react";
 import io from "socket.io-client";
+import RandomPlayer from "./RandomPlayer";
+
+// Need to put everything to in the backend
 
 export default class Table extends Component {
   constructor() {
     super();
-
-    // Set this port to http://localhost:5000 for development
-    // this.socket = io("http://localhost:5000");
-    // this.socket = io("http://letsplaydice.herokuapp.com:80");
 
     if (process.env.NODE_ENV === "production") {
       this.socket = io("http://letsplaydice.herokuapp.com:80");
@@ -26,7 +25,8 @@ export default class Table extends Component {
       everyonesDice: null,
       table: null,
       playerRolled: " ",
-      id: null
+      id: null,
+      randomPlayers: []
     };
 
     this.socket.on("id assignment", id => {
@@ -47,15 +47,20 @@ export default class Table extends Component {
       this.setState({ players });
     });
 
+    var notificationTimeout = null;
     this.socket.on("player rolled", player => {
+      if (notificationTimeout) {
+        clearTimeout(notificationTimeout);
+      }
+
       this.setState(
         {
           playerRolled: player + " just rolled"
         },
         () => {
-          setTimeout(() => {
+          notificationTimeout = setTimeout(() => {
             this.setState({ playerRolled: " " });
-          }, 500);
+          }, 1000);
         }
       );
     });
@@ -87,7 +92,7 @@ export default class Table extends Component {
       this.setState({
         table: everyonesDice
       });
-      console.log("socket.on called");
+
     });
     this.setTable();
   }
@@ -113,6 +118,12 @@ export default class Table extends Component {
     }
   };
 
+  addRandomPlayer = () => {
+    this.setState({
+      randomPlayers: [...this.state.randomPlayers, <RandomPlayer />]
+    })
+  }
+
   setTable = () => {
     if (this.state.diceSet) {
       const dice = this.state.diceSet.map((value, i) => {
@@ -135,7 +146,7 @@ export default class Table extends Component {
     this.setState({ player });
     console.log(player);
 
-    // Declare to server a new player has joined and send over initial dice set
+    // Declare to server a new player has joined
     this.socket.emit("new player", player);
   };
 
@@ -157,6 +168,7 @@ export default class Table extends Component {
         {this.state.player && <h2>{this.state.player}</h2>}
         <p>Players online: {this.showPlayerNames()}</p>
         <div style={{ marginTop: "10px" }} />
+        <Button onClick={this.addRandomPlayer}>Add Random Player</Button>
         <Button primary disabled={!this.state.player} onClick={this.rollDice}>
           Roll Dice
         </Button>
@@ -165,6 +177,7 @@ export default class Table extends Component {
         <Button disabled={!this.state.player} onClick={this.revealDice}> Call Bullshit</Button>
 
         {this.state.table}
+        {this.state.randomPlayers}
       </div>
     );
   }
