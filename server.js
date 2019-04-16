@@ -37,7 +37,7 @@ io.on("connection", function (socket) {
 
     // initialize player to grameboard
     if (!gameboard[playerId]) {
-      console.log("create new player in gameboard");
+      console.log(playerName + " added in gameboard");
       gameboard[playerId] = {
         name: playerName,
         id: playerId,
