@@ -64,7 +64,7 @@ export default class Table extends Component {
     this.socket.on("reveal score", gameBoard => {
       const everyonesDice = Object.keys(gameBoard).map((playerId, j) => {
         console.log(gameBoard);
-        const onePersonsDice = gameBoard[playerId].dice.map((dice, i) => {
+        const onePersonsDice = gameBoard[playerId].dice.sort().map((dice, i) => {
           return (
             <Grid.Column key={i}>
               <Dice value={dice} />
