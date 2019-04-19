@@ -2,7 +2,7 @@ const GameBoard = require("../gameComponents/GameBoard");
 const Player = require("../gameComponents/Player");
 const assert = require("assert");
 
-// Object creation
+// Game object creation
 const newGame = new GameBoard(321)
 console.log("Game id:", newGame.id);
 assert.ok(newGame.id, "Game creation test passed");
@@ -14,7 +14,6 @@ const playersCountAfterAdd = Object.keys(newGame.players).length;
 console.log("Number of players in game after addition:", playersCountAfterAdd);
 assert.equal(newGame.playersCount, playersCountAfterAdd, "Players count need to match number of players in players object");
 assert.equal(playersCountAfterAdd, 1, "Need to be able to add a player");
-
 
 // More than one player
 const player2 = new Player(331);
@@ -37,7 +36,6 @@ const gameDiceSet = newGame.revealDice()
 console.log("Reveal dice:", gameDiceSet);
 assert.equal(gameDiceSet.length, 2, "Need to be able to reveal dice");
 assert.equal(gameDiceSet[0].length, 5, "Need to be able to reveal dice");
-
 
 // Remove player
 newGame.removePlayer(player1.id);

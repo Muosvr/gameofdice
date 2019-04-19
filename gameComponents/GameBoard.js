@@ -18,7 +18,7 @@ class GameBoard {
       this.players[[player.id]] = player
       this.playersCount++;
     } else {
-      throw "player already exists";
+      throw "Player already exists";
     }
   };
 
