@@ -1,6 +1,9 @@
 ## Game Of Dice 大话筛
 [online multiplayer game](http://letsplaydice.herokuapp.com/)
 
+## How to play
+This game can be played face to face (for when physical dice is not available) or online using video chat for guessing interaction. The app itself serves as a game board to store each player's dice and to prevent cheating.
+
 ## Basic Rules
 1. Each player rolls and tries to guess how many dice there are in total among all players for a particular face value. Players can only see the dice they have in front of them, not what others have.
 2. The next player have to up the number on either the face value or the number of dice count.
