@@ -5,6 +5,8 @@ function socketLogics(app) {
   var gameboard = {};
   var players = [];
 
+  // Todo: confirm player is in current session. If not send signal for relogin
+
   // Set up socket.io action
   io.on("connection", function (socket) {
 
@@ -26,20 +28,23 @@ function socketLogics(app) {
 
     // Detect dice roll
     socket.on("dice action", (playerId, dice) => {
-      const playerName = players[players.findIndex(obj => obj.id == socket.id)].name;
+      if (players.findIndex(obj => obj.id == playerId) !== -1) {
+        const playerName = players[players.findIndex(obj => obj.id == socket.id)].name;
 
-      // initialize player to grameboard
-      if (!gameboard[playerId]) {
-        console.log(playerName + " added in gameboard");
-        gameboard[playerId] = {
-          name: playerName,
-          id: playerId,
+        // initialize player to grameboard
+        if (!gameboard[playerId]) {
+          console.log(playerName + " added in gameboard");
+          gameboard[playerId] = {
+            name: playerName,
+            id: playerId,
+          }
         }
-      }
-      gameboard[playerId] = { ...gameboard[playerId], dice }
-      io.emit("player rolled", playerName);
+        gameboard[playerId] = { ...gameboard[playerId], dice }
+        io.emit("player rolled", playerName);
 
-      console.log("recorded", playerName, playerId, gameboard[playerId].dice);
+        console.log("recorded", playerName, playerId, gameboard[playerId].dice);
+      }
+
     });
 
     // On receiving game action, emit to everyone including the sender

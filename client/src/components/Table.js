@@ -168,7 +168,7 @@ export default class Table extends Component {
         {this.state.player && <h2>{this.state.player}</h2>}
         <p>Players online: {this.showPlayerNames()}</p>
         <div style={{ marginTop: "10px" }} />
-        <Button onClick={this.addRandomPlayer}>Add Random Player</Button>
+        {/* <Button onClick={this.addRandomPlayer}>Add Random Player</Button> */}
         <Button primary disabled={!this.state.player} onClick={this.rollDice}>
           Roll Dice
         </Button>
