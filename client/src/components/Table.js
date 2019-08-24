@@ -12,7 +12,8 @@ export default class Table extends Component {
     super();
 
     if (process.env.NODE_ENV === "production") {
-      this.socket = io("http://letsplaydice.herokuapp.com:80");
+      console.log("Socket using production address");
+      this.socket = io(process.env.HOSTADD);
     } else {
       this.socket = io("http://localhost:5000");
     }
